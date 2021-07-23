@@ -1,0 +1,334 @@
+{
+  "description": "MMS to Photo Frame Inbound",
+  "states": [
+    {
+      "name": "Trigger",
+      "type": "trigger",
+      "transitions": [
+        {
+          "next": "check_for_photo",
+          "event": "incomingMessage"
+        },
+        {
+          "event": "incomingCall"
+        },
+        {
+          "event": "incomingRequest"
+        }
+      ],
+      "properties": {
+        "offset": {
+          "x": 0,
+          "y": 0
+        }
+      }
+    },
+    {
+      "name": "ask_for_caption",
+      "type": "send-and-wait-for-reply",
+      "transitions": [
+        {
+          "next": "check_for_caption",
+          "event": "incomingMessage"
+        },
+        {
+          "event": "timeout"
+        },
+        {
+          "event": "deliveryFailure"
+        }
+      ],
+      "properties": {
+        "offset": {
+          "x": 60,
+          "y": 230
+        },
+        "service": "{{trigger.message.InstanceSid}}",
+        "channel": "{{trigger.message.ChannelSid}}",
+        "from": "{{flow.channel.address}}",
+        "body": "Got it! Would you like to add a caption? Reply Y or N.",
+        "timeout": "3600"
+      }
+    },
+    {
+      "name": "check_for_photo",
+      "type": "split-based-on",
+      "transitions": [
+        {
+          "next": "ask_for_photo",
+          "event": "noMatch"
+        },
+        {
+          "next": "ask_for_caption",
+          "event": "match",
+          "conditions": [
+            {
+              "friendly_name": "has photo",
+              "arguments": [
+                "{{trigger.message.MediaUrl0}}"
+              ],
+              "type": "is_not_blank",
+              "value": "Is Not Blank"
+            }
+          ]
+        }
+      ],
+      "properties": {
+        "input": "{{trigger.message.MediaUrl0}}",
+        "offset": {
+          "x": -320,
+          "y": 230
+        }
+      }
+    },
+    {
+      "name": "ask_for_photo",
+      "type": "send-message",
+      "transitions": [
+        {
+          "event": "sent"
+        },
+        {
+          "event": "failed"
+        }
+      ],
+      "properties": {
+        "offset": {
+          "x": -320,
+          "y": 470
+        },
+        "service": "{{trigger.message.InstanceSid}}",
+        "channel": "{{trigger.message.ChannelSid}}",
+        "from": "{{flow.channel.address}}",
+        "to": "{{contact.channel.address}}",
+        "body": "Send in a photo to begin!"
+      }
+    },
+    {
+      "name": "check_for_caption",
+      "type": "split-based-on",
+      "transitions": [
+        {
+          "next": "ask_for_caption",
+          "event": "noMatch"
+        },
+        {
+          "next": "ask_caption_contents",
+          "event": "match",
+          "conditions": [
+            {
+              "friendly_name": "yes",
+              "arguments": [
+                "{{widgets.ask_for_caption.inbound.Body}}"
+              ],
+              "type": "equal_to",
+              "value": "y"
+            }
+          ]
+        },
+        {
+          "next": "ask_confirmation",
+          "event": "match",
+          "conditions": [
+            {
+              "friendly_name": "no",
+              "arguments": [
+                "{{widgets.ask_for_caption.inbound.Body}}"
+              ],
+              "type": "equal_to",
+              "value": "n"
+            }
+          ]
+        }
+      ],
+      "properties": {
+        "input": "{{widgets.ask_for_caption.inbound.Body}}",
+        "offset": {
+          "x": 60,
+          "y": 460
+        }
+      }
+    },
+    {
+      "name": "ask_caption_contents",
+      "type": "send-and-wait-for-reply",
+      "transitions": [
+        {
+          "next": "ask_confirmation",
+          "event": "incomingMessage"
+        },
+        {
+          "event": "timeout"
+        },
+        {
+          "event": "deliveryFailure"
+        }
+      ],
+      "properties": {
+        "offset": {
+          "x": 410,
+          "y": 320
+        },
+        "service": "{{trigger.message.InstanceSid}}",
+        "channel": "{{trigger.message.ChannelSid}}",
+        "from": "{{flow.channel.address}}",
+        "body": "What would you like your caption to say? Reply with up to 1600 characters.",
+        "timeout": "3600"
+      }
+    },
+    {
+      "name": "ask_confirmation",
+      "type": "send-and-wait-for-reply",
+      "transitions": [
+        {
+          "next": "check_confirmation",
+          "event": "incomingMessage"
+        },
+        {
+          "event": "timeout"
+        },
+        {
+          "event": "deliveryFailure"
+        }
+      ],
+      "properties": {
+        "offset": {
+          "x": 740,
+          "y": 150
+        },
+        "service": "{{trigger.message.InstanceSid}}",
+        "channel": "{{trigger.message.ChannelSid}}",
+        "from": "{{flow.channel.address}}",
+        "body": "Ready to post! Would you like to continue? Reply Y or N.",
+        "timeout": "3600"
+      }
+    },
+    {
+      "name": "check_confirmation",
+      "type": "split-based-on",
+      "transitions": [
+        {
+          "next": "ask_confirmation",
+          "event": "noMatch"
+        },
+        {
+          "next": "post_to_frame",
+          "event": "match",
+          "conditions": [
+            {
+              "friendly_name": "yes",
+              "arguments": [
+                "{{widgets.ask_confirmation.inbound.Body}}"
+              ],
+              "type": "equal_to",
+              "value": "y"
+            }
+          ]
+        },
+        {
+          "next": "confirm_no",
+          "event": "match",
+          "conditions": [
+            {
+              "friendly_name": "no",
+              "arguments": [
+                "{{widgets.ask_confirmation.inbound.Body}}"
+              ],
+              "type": "equal_to",
+              "value": "n"
+            }
+          ]
+        }
+      ],
+      "properties": {
+        "input": "{{widgets.ask_confirmation.inbound.Body}}",
+        "offset": {
+          "x": 750,
+          "y": 330
+        }
+      }
+    },
+    {
+      "name": "confirm_no",
+      "type": "send-message",
+      "transitions": [
+        {
+          "event": "sent"
+        },
+        {
+          "event": "failed"
+        }
+      ],
+      "properties": {
+        "offset": {
+          "x": 750,
+          "y": 530
+        },
+        "service": "{{trigger.message.InstanceSid}}",
+        "channel": "{{trigger.message.ChannelSid}}",
+        "from": "{{flow.channel.address}}",
+        "to": "{{contact.channel.address}}",
+        "body": "No worries. Your message has been discared. Feel free to text in again!"
+      }
+    },
+    {
+      "name": "post_to_frame",
+      "type": "make-http-request",
+      "transitions": [
+        {
+          "next": "confirm",
+          "event": "success"
+        },
+        {
+          "event": "failed"
+        }
+      ],
+      "properties": {
+        "offset": {
+          "x": 1110,
+          "y": 330
+        },
+        "method": "POST",
+        "content_type": "application/x-www-form-urlencoded;charset=utf-8",
+        "parameters": [
+          {
+            "value": "{{trigger.message.MediaUrl0}}",
+            "key": "image"
+          },
+          {
+            "value": "{{widgets.ask_caption_contents.inbound.Body}}",
+            "key": "caption"
+          }
+        ],
+        "url": "{{__replace--function_url}}"
+      }
+    },
+    {
+      "name": "confirm",
+      "type": "send-message",
+      "transitions": [
+        {
+          "event": "sent"
+        },
+        {
+          "event": "failed"
+        }
+      ],
+      "properties": {
+        "offset": {
+          "x": 1140,
+          "y": 560
+        },
+        "service": "{{trigger.message.InstanceSid}}",
+        "channel": "{{trigger.message.ChannelSid}}",
+        "from": "{{flow.channel.address}}",
+        "to": "{{contact.channel.address}}",
+        "body": "Your message is off to the frame, happy texting!"
+      }
+    }
+  ],
+  "initial_state": "Trigger",
+  "flags": {
+    "allow_concurrent_calls": true
+  }
+}

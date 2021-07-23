@@ -4,3 +4,7 @@ coverage/
 package-lock.json
 .DS_Store
 **/.env
+
+mms-photo-frame/.twiliodeployinfo
+
+mms-photo-frame/.twilioserverlessrc

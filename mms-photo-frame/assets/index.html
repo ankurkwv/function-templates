@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta http-equiv="x-ua-compatible" content="ie=edge">
+        
+        <title>The MMS Photo Frame</title>
+
+        <link rel="icon" href="https://twilio-labs.github.io/function-templates/static/v1/favicon.ico">
+        <link rel="stylesheet" href="https://twilio-labs.github.io/function-templates/static/v1/ce-paste-theme.css">
+        <link rel="stylesheet" href="/mms-photo-frame.css">
+
+        <script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
+        <script src="https://media.twiliocdn.com/sdk/js/sync/v1.0/twilio-sync.min.js"></script>
+        <script src="https://twilio-labs.github.io/function-templates/static/v1/ce-helpers.js" defer></script>
+        <script>
+         window.addEventListener('DOMContentLoaded', (_event) => {
+             inputPrependBaseURL();
+         });
+        </script>
+    </head>
+    <body>
+        <div id="frame" class="overlay">
+            <canvas id="canvas"></canvas>
+            <button id="close_frame" class="close square_buttons"></button>
+            <button id="back_button" class="back square_buttons"></button>
+            <div id="inner_frame" class="frame">
+                <div id="caption" class="caption">Waiting...</div>
+            </div>
+            <div class="right-bar">
+                <div id="twilio-logo">
+                    <a href="https://www.twilio.com/" target="_blank" rel="noopener">
+                        <svg class="logo" data-name="Layer 1" xmlns="http://www.w3.org/2000/svg" viewbox="0 0 60 60">
+                            <title>Twilio Logo</title><path class="cls-1" d="M30,15A15,15,0,1,0,45,30,15,15,0,0,0,30,15Zm0,26A11,11,0,1,1,41,30,11,11,0,0,1,30,41Zm6.8-14.7a3.1,3.1,0,1,1-3.1-3.1A3.12,3.12,0,0,1,36.8,26.3Zm0,7.4a3.1,3.1,0,1,1-3.1-3.1A3.12,3.12,0,0,1,36.8,33.7Zm-7.4,0a3.1,3.1,0,1,1-3.1-3.1A3.12,3.12,0,0,1,29.4,33.7Zm0-7.4a3.1,3.1,0,1,1-3.1-3.1A3.12,3.12,0,0,1,29.4,26.3Z"/></svg>
+                    </a>
+                </div>
+                <h1>Text a photo to <span id="number"></span></h1>
+            </div>
+        </div>
+        <div class="page-top">
+            <header>
+                <div id="twilio-logo">
+                    <a href="https://www.twilio.com/" target="_blank" rel="noopener">
+                        <svg class="logo" data-name="Layer 1" xmlns="http://www.w3.org/2000/svg" viewbox="0 0 60 60">
+                            <title>Twilio Logo</title><path class="cls-1" d="M30,15A15,15,0,1,0,45,30,15,15,0,0,0,30,15Zm0,26A11,11,0,1,1,41,30,11,11,0,0,1,30,41Zm6.8-14.7a3.1,3.1,0,1,1-3.1-3.1A3.12,3.12,0,0,1,36.8,26.3Zm0,7.4a3.1,3.1,0,1,1-3.1-3.1A3.12,3.12,0,0,1,36.8,33.7Zm-7.4,0a3.1,3.1,0,1,1-3.1-3.1A3.12,3.12,0,0,1,29.4,33.7Zm0-7.4a3.1,3.1,0,1,1-3.1-3.1A3.12,3.12,0,0,1,29.4,26.3Z"/></svg>
+                    </a>
+                </div>
+                <nav>
+                    <span>Quick Deploy: The MMS Photo Frame</span>
+                    <aside>
+                        <svg class="icon" role="img" aria-hidden="true" width="100%" height="100%" viewBox="0 0 20 20" aria-labelledby="NewIcon-1577"><path fill="currentColor" fill-rule="evenodd" d="M6.991 7.507c.003-.679 1.021-.675 1.019.004-.012 2.956 1.388 4.41 4.492 4.48.673.016.66 1.021-.013 1.019-2.898-.011-4.327 1.446-4.48 4.506-.033.658-1.01.639-1.018-.02-.03-3.027-1.382-4.49-4.481-4.486-.675 0-.682-1.009-.008-1.019 3.02-.042 4.478-1.452 4.49-4.484zm.505 2.757l-.115.242c-.459.9-1.166 1.558-2.115 1.976l.176.08c.973.465 1.664 1.211 2.083 2.22l.02.05.088-.192c.464-.973 1.173-1.685 2.123-2.124l.039-.018-.118-.05c-.963-.435-1.667-1.117-2.113-2.034l-.068-.15zm10.357-8.12c.174.17.194.434.058.625l-.058.068-1.954 1.905 1.954 1.908a.482.482 0 010 .694.512.512 0 01-.641.056l-.07-.056-1.954-1.908-1.954 1.908a.511.511 0 01-.71 0 .482.482 0 01-.058-.626l.058-.068 1.954-1.908-1.954-1.905a.482.482 0 010-.693.512.512 0 01.64-.057l.07.057 1.954 1.905 1.954-1.905a.511.511 0 01.71 0z"></path></svg>
+                        <span id="deployment_status">Initializing...</span>
+                    </aside>
+                </nav>
+            </header>
+        </div>
+        <main>
+            <div class="content">
+                <div class="flex padding header">
+                    <img src="https://twilio-labs.github.io/function-templates/static/v1/success.svg" />
+                    <div class="padding">
+                        <h1>The MMS Photo Frame</h1>
+                        <p>This application gives you a live website to use as a portable photo frame powered entirely by Twilio MMS.</p>
+                    </div>
+                </div>
+                <section>
+                    <h2>Get started with your application</h2>
+                    <p>
+                        This Quick Deploy application has already taken care of many things for you. With the number you configured, this applet handles provisioning the following bits on your Twilio Account:
+                    </p>
+                    <ol class="steps">
+                        <li>Studio Flow to handle incoming photo requsts –> <span class="status" id="studio_status">
+                        deploying...</span></li>
+                        <li>Auto-provision phone number to use Studio Flow –> <span class="status" id="phone_number_status">
+                        deploying...</span></li>
+                        <li>Sync Service to push real-time updates to the photo frame -> <span class="status" id="sync_status">
+                        deploying...</span></li>
+                    </ol>
+                    <button id="launch" class="launch" disabled>Loading Photo Frame...</button>
+                </section>
+                <section>
+                    <!-- APP_INFO_V2 -->
+                </section>
+            </div>
+        </main>
+        <footer>
+            <div>
+                <a href="https://www.twilio.com/">
+                  <svg id="twilio-logo" data-name="Layer 1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 60 60">
+                    <defs>
+                      <style>
+                        .cls-1 {
+                          fill: #f22f46;
+                        }
+                      </style>
+                    </defs>
+                    <title>Twilio Logo</title><path class="cls-1" d="M30,15A15,15,0,1,0,45,30,15,15,0,0,0,30,15Zm0,26A11,11,0,1,1,41,30,11,11,0,0,1,30,41Zm6.8-14.7a3.1,3.1,0,1,1-3.1-3.1A3.12,3.12,0,0,1,36.8,26.3Zm0,7.4a3.1,3.1,0,1,1-3.1-3.1A3.12,3.12,0,0,1,36.8,33.7Zm-7.4,0a3.1,3.1,0,1,1-3.1-3.1A3.12,3.12,0,0,1,29.4,33.7Zm0-7.4a3.1,3.1,0,1,1-3.1-3.1A3.12,3.12,0,0,1,29.4,26.3Z"></path></svg>
+                </a>
+              </div>
+            <span class="statement">We can't wait to see what you build.</span>
+            <span>MMS to Photo Frame is an open-source project by Ankur Kumar as part of the <a target="_blank" href="https://www.twilio.com/code-exchange">Twilio Code Exchange</a>.</span>
+        </footer>
+        <script src="/app.js"></script>
+    </body>
+</html>

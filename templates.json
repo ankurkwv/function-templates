@@ -261,6 +261,11 @@
       "description": "Logs incoming SMS numbers and messages into a Google Sheets table"
     },
     {
+      "id": "mms-photo-frame",
+      "name": "MMS Photo Frame",
+      "description": "Create a dynamic photo frame website hosted with Twilio Serverless which will automatically update when your Twilio Phone Number receives a new MMS."
+    },
+    {
       "id": "covid-vaccine-faq-bot",
       "name": "COVID-19 Vaccine FAQ Bot",
       "description": "Address COVID-19 vaccine hesitancy among consumers and answer their vaccine-related questions through an SMS chatbot"

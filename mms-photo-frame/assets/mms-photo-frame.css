@@ -1,0 +1,202 @@
+body {
+	height: 100%;
+}
+
+.flex {
+	display: flex;
+	flex-direction: row;
+	align-items: center;
+	justify-content: center;
+}
+
+.padding {
+	padding: 20px;
+}
+
+.header p {
+	max-width: 300px;
+}
+
+.steps li {
+	margin-bottom: 5px;
+}
+
+.steps .status {
+	color: rgb(200, 175, 240);
+	background: rgb(6, 3, 58);
+	padding: 5px 10px;
+	font-size: .9em;
+	letter-spacing: 1px;
+	border-radius: 4px;
+}
+
+.steps .provisioned {
+	background: rgb(200, 175, 240);
+	color: rgb(6, 3, 58);
+}
+
+button {
+    display: block;
+    border: none;
+    padding: 1rem 2rem;
+    margin: 0;
+    text-decoration: none;
+    background-color: rgb(2,99,224);
+    box-shadow: 0 0 0 1px #0263e0;
+    color: #ffffff;
+    font-family: sans-serif;
+    font-size: 1rem;
+    cursor: pointer;
+    text-align: center;
+    transition: background 250ms ease-in-out, 
+                transform 150ms ease;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    border-radius: 4px;
+    font-weight: bold;
+}
+
+button[disabled] {
+    background: #94979b;
+    box-shadow: none !important;
+    cursor: not-allowed;
+    color: #ffffff;
+    font-weight: normal;
+}
+
+button.launch {
+    margin: 50px auto 20px;
+    box-shadow: 0px 0px 50px rgba(2,99,224,.3);
+}
+
+button:hover,
+button:focus {
+    background: #0053ba;
+}
+
+button:focus {
+    outline: 1px solid #fff;
+    outline-offset: -4px;
+}
+
+button:active {
+    transform: scale(0.9);
+}
+
+footer {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    color: #94979b;
+    background: rgb(6, 3, 58);
+    box-shadow: 0px 2px 6px 0px rgb(75 86 113 / 20%);
+    padding: 50px 0;
+    margin-top: 2rem;
+    padding-top: 75px;
+}
+
+footer a, footer a:visited {
+	color: #fff;
+}
+
+footer #twilio-logo {
+    width: 50px;
+    height: 50px;
+}
+
+footer .statement {
+	font-size: 20px;
+}
+
+.overlay {
+	position: absolute;
+	display: flex;
+	flex-direction: row;
+	justify-content: center;
+	align-items: stretch;
+	height: 100%;
+	width: 100%;
+	border-bottom: 4px solid rgba(0,0,0,.9);
+}
+
+.overlay #canvas {
+  position: absolute;
+  height: 100%;
+  width: 100%;
+  background: transparent;
+  z-index: 1000;
+}
+
+.overlay .frame {
+	background: rgba(0,0,0,.95);
+	width: 75%;
+	height: 100%;
+	flex: 4;
+	position: relative;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
+.overlay .frame img {
+	max-height:  100%;
+	max-width: 100%;
+}
+
+.overlay .frame .caption {
+	position: absolute;
+	background: rgba(255,255,255,.9);
+	width: 400px;
+	height: auto;
+	padding: 15px 20px;
+	bottom: 25px;
+	right: 25px;
+	font-size: 1em;
+	border-radius: 2px;
+	z-index: 9999;
+}
+
+.overlay .square_buttons {
+	position: absolute;
+	width: 35px;
+	height: 35px;
+	background-color: #000;
+	background-repeat: no-repeat;
+	padding: 0; 
+	cursor: pointer;
+	z-index: 9999;
+	background-image: url("data:image/svg+xml;charset=utf8,%3Csvg viewBox='0 0 32 32' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath stroke='rgba(255,255,255, 1)' stroke-width='2' stroke-linecap='round' stroke-miterlimit='10' d='M8 8 L24 24 M8 24 L24 8'/%3E%3C/svg%3E");
+}
+
+.overlay .close {
+	top: 25px;
+	right: 25px;
+	background-image: url("data:image/svg+xml;charset=utf8,%3Csvg viewBox='0 0 32 32' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath stroke='rgba(255,255,255, 1)' stroke-width='2' stroke-linecap='round' stroke-miterlimit='10' d='M8 8 L24 24 M8 24 L24 8'/%3E%3C/svg%3E");
+}
+
+.overlay .back {
+	top: 25px;
+	right: 70px;
+    background-color: white;
+    background-size: 50% 50%;
+    background-position: 50%;
+	background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' id='i-backwards' class='bs-icon' viewBox='0 0 32 32'%3E%3Cpath d='M16 2 L2 16 16 30 16 16 30 30 30 2 16 16 Z'%3E%3C/path%3E%3C/svg%3E");
+}
+
+.overlay .right-bar {
+	flex: 1;
+	display: flex;
+    color: white;
+    background: rgb(6, 3, 58);
+    height: 100%;
+    align-content: center;	
+    align-items: center;
+    padding: 0 20px 0 0;
+}
+
+.overlay h1 {
+	display: inline-block;
+	line-height: 1.1;
+    font-size: 1.6em;
+}

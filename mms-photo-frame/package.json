@@ -1,0 +1,6 @@
+{
+  "name": "mms-photo-frame",
+  "dependencies": {
+    "twilio": "*"
+  }
+}
