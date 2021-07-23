@@ -20,7 +20,7 @@ exports.handler = async function (context, event, callback) {
 
   // Substitue the correct URL into the studio flow JSON
   function strReplaceFlowData() {
-    let postUrl = "https://" + context.DOMAIN_NAME + context.POST_HANDLER_PATH;
+    let postUrl = "https://" + context.DOMAIN_NAME + '/post-to-frame';
     flowDefinition = flowDefinition.replace('{{__replace--function_url}}', postUrl);
     console.log('Flow Definition replaced.');
   }
