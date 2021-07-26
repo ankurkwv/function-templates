@@ -8,7 +8,6 @@ $(function() {
   let photoFrame = $('#frame'); // Photo frame container
   let innerFrame = $('#inner_frame'); // // Where the photos actually go
   let closeFrameButton = $('#close_frame'); // Button to close frame
-  let backButton = $('#back_button'); // Button to get previous photo
   let caption = $('#caption'); // Caption div display container
   let number = $('#number'); // Twilio phone number display container
   let listName, syncList, currentIndex; // Misc sync list variables
@@ -17,10 +16,10 @@ $(function() {
 
   function runSetup() {
     photoFrame.hide(); // On load, hide the frame
-    backButton.hide(); // and the back button
 
     frame(); // Begin the 2d context for animations later
 
+    // Run all of our Twilio resource setup functions
     touchStudioFlow()
       .then((webhookUrl) => touchPhoneNumber(webhookUrl))
       .then(() => touchSyncService())
@@ -28,11 +27,6 @@ $(function() {
       .then((token) => startSync(token))
       .then(() => addLaunchButton())
       .catch(error => displayInitError(error));
-  }
-
-  function displayInitError(error) {
-    console.log(`Error: ${error}`);
-    alert("We're sorry, there was an issue with the installation. Please file a github issue on https://github.com/twilio-labs/function-templates and mention mms-photo-frame. Thank you!");
   }
 
   // Calling a relative URL which is to a Twilio Function
@@ -145,39 +139,10 @@ $(function() {
       list.on('itemAdded', function(result) {
         currentIndex = result.item.index;
         insertItemToPage(result.item.data); // Show the new image & caption
-        toggleBackButton(); // Show the back button
       });
     });
 
     overallStatus.html('Live');
-  }
-
-  function toggleBackButton() {
-    if (currentIndex > 0) {
-      backButton.show();
-    }
-  }
-
-  // This function is used by the back button
-  // to load the previous image inside our
-  // Sync List. 
-
-  function goBackOneImage(index) {
-    window.syncList.get(index - 1)
-      .then(function(item) {
-        console.log(item);
-        currentIndex = index - 1;
-        return insertItemToPage(item.data);
-      })
-      .catch(function(error) {
-        if (index == 0) {
-          backButton.hide();
-          return;
-        }
-        if (error.code == 54151) { // Not found 
-          return goBackOneImage(index - 1);
-        }
-      });
   }
 
   // This function takes data from our Sync List
@@ -216,14 +181,16 @@ $(function() {
     closeFrameButton.on('click', function() {
       photoFrame.fadeOut('fast');
     });
-    backButton.on('click', function() {
-      goBackOneImage(currentIndex);
-    });
   }
 
 
   function openPhotoFrame() { // Tied to the button to open the frame
     photoFrame.fadeIn('fast');
+  }
+
+  function displayInitError(error) {
+    console.log(`Error: ${error}`);
+    alert("We're sorry, there was an issue with the installation. Please file a github issue on https://github.com/twilio-labs/function-templates and mention mms-photo-frame. Thank you!");
   }
 
   function log(message) {
