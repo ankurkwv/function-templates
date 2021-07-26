@@ -25,7 +25,7 @@ In your `.env` file, set the following values:
 | Variable | Description | Required |
 | :------- | :---------- | :------- |
 | `TWILIO_PHONE_NUMBER` | Your Twilio phone number in E.164 format | Yes; *note: this is automatically added when using Quick Deploy |
-| `SYNC_LIST_NAME` | The name of your Sync List to be created during setup | Yes *note: this is automatically added when using Quick Deploy |
+| `SYNC_LIST_NAME` | The name of your Sync List to be created during setup | Yes *note: this is automatically set as `MMS_SYNC_LIST` when using Quick Deploy |
 
 ## Create a new project with the template
 

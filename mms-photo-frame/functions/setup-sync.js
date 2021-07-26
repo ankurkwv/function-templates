@@ -1,8 +1,22 @@
 /* eslint-disable no-console, func-names */
-/* thanks to the vaccine-standby team for the boilerplate for this function : https://github.com/twilio-labs/function-templates/blob/main/vaccine-standby/functions/setup.js */
+
+/**
+ *
+ * setup-sync.js
+ * 
+ * Creates a Sync Service and Sync List to utilize for
+ * this deployment of the photo frame. 
+ * 
+ * Also creates an API Key/Secret pair to be used 
+ * inside sync-token.js in signing the tokens
+ * 
+ * Returns the service SID
+ */
 
 exports.handler = async function (context, event, callback) {
 
+  // Like a cache, return early if the 
+  // env has already been set.
   if (context.SYNC_SERVICE_SID && context.TWILIO_API_KEY && context.TWILIO_API_SECRET) {
     return callback(null, {
       syncServiceSid: context.SYNC_SERVICE_SID
@@ -11,21 +25,23 @@ exports.handler = async function (context, event, callback) {
 
   const helpersPath = Runtime.getFunctions()['helpers'].path;
   const { getCurrentEnvironment, createEnvironmentVariable } = require(helpersPath);
-
   const client = context.getTwilioClient();
 
+  // Creating a Twilio API Key
   function createApiKey() {
     return client.newKeys.create()
         .then(new_key => new_key)
         .catch((err) => { throw new Error(err.details) });
   }
 
+  // Creating a Sync Service
   function createSyncService() {
     return client.sync.services.create()
         .then(service => service)
         .catch((err) => { throw new Error(err.details) });
   }
 
+  // Adding a List to a specified service
   function createSyncList(serviceSid) {
     return client.sync.services(serviceSid)
         .syncLists
@@ -43,7 +59,8 @@ exports.handler = async function (context, event, callback) {
   const syncList = await createSyncList(syncService.sid);
   console.log('Sync List created: ' + syncList.sid);
 
-  // No environment exists when developing locally
+  // Making sure we only try and update the env if this file
+  // is being run inside a Twilio Function service, not locally
   if (context.DOMAIN_NAME && !context.DOMAIN_NAME.startsWith("localhost")) {
     const environment = await getCurrentEnvironment(context);
     await createEnvironmentVariable(context, environment, 'SYNC_SERVICE_SID', syncService.sid);

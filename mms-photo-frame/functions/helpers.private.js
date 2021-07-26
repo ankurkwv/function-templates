@@ -1,9 +1,14 @@
+/* eslint-disable no-console, func-names */
+
 /* thanks to the vaccine-standby team for the boilerplate for this function : https://github.com/twilio-labs/function-templates/blob/main/vaccine-standby/functions/auth.private.js */
 
 async function getCurrentEnvironment(context) {
+
   if (context.DOMAIN_NAME && context.DOMAIN_NAME.startsWith("localhost")) {
+
     return;
   }
+
   const client = context.getTwilioClient();
   const services = await client.serverless.services.list();
   for (let service of services) {

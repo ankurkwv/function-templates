@@ -1,4 +1,16 @@
-exports.handler = function(context, event, callback) {  
+/* eslint-disable no-console, func-names */
+
+/**
+ *
+ * sync-token.js
+ * 
+ * Called by our client side JS code to generate a 
+ * Sync token to our Sync Service.
+ * 
+ * Returns a token and a list name.
+ */
+
+ exports.handler = function(context, event, callback) {  
   const ACCOUNT_SID = context.ACCOUNT_SID;
   const SERVICE_SID = context.SYNC_SERVICE_SID;
   const API_KEY = context.TWILIO_API_KEY;
