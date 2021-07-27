@@ -22,8 +22,10 @@ exports.handler = async function (context, event, callback) {
     return callback('Not authorized.');
   }
 
-  // Like a cache, return early if the 
-  // env has already been set.
+  /*
+   * Like a cache, return early if the 
+   * env has already been set.
+   */
   if (context.SYNC_SERVICE_SID && context.TWILIO_API_KEY && context.TWILIO_API_SECRET) {
     return callback(null, {
       syncServiceSid: context.SYNC_SERVICE_SID
@@ -58,11 +60,11 @@ exports.handler = async function (context, event, callback) {
   }
 
   const key = await createApiKey();
-  console.log('API Key created: ' + key.sid);
+  console.log(`API Key created: ${ key.sid }`);
   const syncService = await createSyncService();
-  console.log('Sync Service created: ' + syncService.sid);
+  console.log(`Sync Service created: ${ syncService.sid }`);
   const syncList = await createSyncList(syncService.sid);
-  console.log('Sync List created: ' + syncList.sid);
+  console.log(`Sync List created: ${ syncList.sid }`);
 
   const environment = await getCurrentEnvironment(context);
   await createEnvironmentVariable(context, environment, 'SYNC_SERVICE_SID', syncService.sid);

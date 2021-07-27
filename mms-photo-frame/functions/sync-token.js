@@ -33,8 +33,8 @@
 
   const IDENTITY = 'photo_frame_user';
 
-  const AccessToken = Twilio.jwt.AccessToken;
-  const SyncGrant = AccessToken.SyncGrant;
+  const {AccessToken} = Twilio.jwt;
+  const {SyncGrant} = AccessToken;
 
   const syncGrant = new SyncGrant({
     serviceSid: SERVICE_SID

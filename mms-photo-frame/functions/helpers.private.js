@@ -21,8 +21,8 @@ async function getCurrentEnvironment(context) {
 
   const client = context.getTwilioClient();
   const services = await client.serverless.services.list();
-  for (let service of services) {
-    console.log("Searching for environment. Looping through service: " + service.sid);
+  for (const service of services) {
+    console.log(`Searching for environment. Looping through service: ${ service.sid }`);
     const environments = await client.serverless
       .services(service.sid)
       .environments.list();
@@ -50,8 +50,8 @@ async function createEnvironmentVariable(context, hostedEnvironment, key, value)
       .services(hostedEnvironment.serviceSid)
       .environments(hostedEnvironment.sid)
       .variables.create({
-        key: key,
-        value: value
+        key,
+        value
       });
 
   } catch (err) {

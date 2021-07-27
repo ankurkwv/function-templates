@@ -33,11 +33,11 @@ $(function() {
    */
   
   function touchStudioFlow(passcode) {
-    return $.getJSON("./setup-studio", { passcode: passcode })
+    return $.getJSON("./setup-studio", { passcode })
       .then(function (data) {
         log("Ran studio setup function...");
-        const url = "https://www.twilio.com/console/studio/flows/" + data.flowSid;
-        studioStatus.html('provisioned! <a href="' + url + '">[Edit Flow]</a>');
+        const url = `https://www.twilio.com/console/studio/flows/${ data.flowSid }`;
+        studioStatus.html(`provisioned! <a href="${ url }">[Edit Flow]</a>`);
         studioStatus.addClass('provisioned');
         return data.webhookUrl;
       })
@@ -58,13 +58,13 @@ $(function() {
 
   function touchPhoneNumber(webhookUrl, passcode) {
     return $.getJSON("./setup-number", {
-        webhookUrl: webhookUrl,
-        passcode: passcode
+        webhookUrl,
+        passcode
       })
       .then(function (data) {
         log("Ran phone number setup function...");
-        let url = "https://www.twilio.com/console/phone-numbers/" + data.phoneNumberSid;
-        phoneNumberStatus.html('provisioned! <a href="' + url +'">[Number Configuration]</a>');
+        const url = `https://www.twilio.com/console/phone-numbers/${ data.phoneNumberSid }`;
+        phoneNumberStatus.html(`provisioned! <a href="${ url }">[Number Configuration]</a>`);
         phoneNumberStatus.addClass('provisioned');
         number.html(data.phoneNumber);
         return data.phoneNumberSid;
@@ -85,11 +85,11 @@ $(function() {
    */
 
   function touchSyncService(passcode) {
-    return $.getJSON("./setup-sync", { passcode: passcode })
+    return $.getJSON("./setup-sync", { passcode })
       .then(function (data) {
         log("Ran sync setup function...");
-        let url = "https://www.twilio.com/console/sync/services/" + data.syncServiceSid;
-        syncStatus.html('provisioned! <a href="' + url +'">[View Service]</a>');
+        const url = `https://www.twilio.com/console/sync/services/${ data.syncServiceSid }`;
+        syncStatus.html(`provisioned! <a href="${ url }">[View Service]</a>`);
         syncStatus.addClass('provisioned');
         return data.syncServiceSid;
       })
@@ -113,7 +113,7 @@ $(function() {
   
   function getSyncCreds(passcode) {
     log("Requesting Access Token...");
-    return $.getJSON("./sync-token", { passcode: passcode })
+    return $.getJSON("./sync-token", { passcode })
       .then(function (data) {
         log("Got a token.");
         listName = data.listName;
@@ -135,10 +135,12 @@ $(function() {
 
   function startSync(token) {
     log("Starting sync...");
-    let syncClient = new Twilio.Sync.Client(token);
+    const syncClient = new Twilio.Sync.Client(token);
 
-    // It's important to regenerate the token so that 
-    // the page can be open a long time.
+    /*
+     * It's important to regenerate the token so that 
+     * the page can be open a long time.
+     */
 
     syncClient.on('tokenAboutToExpire', function() {
       log("Token about to expire...");
@@ -147,8 +149,10 @@ $(function() {
       });
     }); 
     
-    // Here is where we actually bind ourselves to the
-    // Sync List that contains our new posts to show!
+    /*
+     * Here is where we actually bind ourselves to the
+     * Sync List that contains our new posts to show!
+     */
 
     syncClient.list(listName).then(function(list) {
       window.syncList = list;
@@ -170,9 +174,9 @@ $(function() {
   
   function insertItemToPage(data) {
 
-    let currentImage = $('.image'); // Grab a copy of the current image
+    const currentImage = $('.image'); // Grab a copy of the current image
 
-    $('<img class="image" src="'+ data.imgPath +'">').on('load', function() {
+    $(`<img class="image" src="${ data.imgPath }">`).on('load', function() {
 
       cleanUpArray(); // Clear any previous animation
       initParticles(config.particleNumber, config.x, config.y); // Show the animation
@@ -254,15 +258,15 @@ $(function() {
  * Credit: Dean Wagman https://codepen.io/deanwagman/pen/EjLBdQ
  */
 
-let canvas = document.querySelector("#canvas"),
-  ctx = canvas.getContext('2d');
+const canvas = document.querySelector("#canvas");
+  const ctx = canvas.getContext('2d');
 
 // Set Canvas to be window size
 canvas.width = window.innerWidth;
 canvas.height = window.innerHeight;
 
 // Configuration, Play with these
-let config = {
+const config = {
   particleNumber: 250,
   maxParticleSize: 8,
   maxSpeed: 25,
@@ -272,7 +276,7 @@ let config = {
 };
 
 // Colors
-let colorPalette = {
+const colorPalette = {
   bg: {
     r: 14,
     g: 18,
@@ -302,9 +306,9 @@ let colorPalette = {
 };
 
 // Some Variables hanging out
-let particles = [],
-  centerX = canvas.width / 2,
-  centerY = canvas.height / 2;
+let particles = [];
+  const centerX = canvas.width / 2;
+  const centerY = canvas.height / 2;
 
 // Draws the background for the canvas, because space
 const drawBg = function(ctx, color) {
@@ -328,37 +332,41 @@ const Particle = function(x, y) {
   this.d = Math.round(Math.random() * 360);
 };
 
-// Provides some nice color variation
-// Accepts an rgba object
-// returns a modified rgba object or a rgba string if true is passed in for argument 2
+/*
+ * Provides some nice color variation
+ * Accepts an rgba object
+ * returns a modified rgba object or a rgba string if true is passed in for argument 2
+ */
 const colorVariation = function(color, returnString) {
-  var r, g, b, a, variation;
+  let r; let g; let b; let a; let variation;
   r = Math.round(((Math.random() * config.colorVariation) - (config.colorVariation / 2)) + color.r);
   g = Math.round(((Math.random() * config.colorVariation) - (config.colorVariation / 2)) + color.g);
   b = Math.round(((Math.random() * config.colorVariation) - (config.colorVariation / 2)) + color.b);
   a = Math.random() + .5;
   if (returnString) {
-    return "rgba(" + r + "," + g + "," + b + "," + a + ")";
-  } else {
+    return `rgba(${  r  },${  g  },${  b  },${  a  })`;
+  } 
     return {
       r,
       g,
       b,
       a
     };
-  }
+  
 };
 
 // Used to find the rocks next point in space, accounting for speed and direction
 const updateParticleModel = function(p) {
-  var a = 180 - (p.d + 90); // find the 3rd angle
+  const a = 180 - (p.d + 90); // find the 3rd angle
   p.d > 0 && p.d < 180 ? p.x += p.s * Math.sin(p.d) / Math.sin(p.s) : p.x -= p.s * Math.sin(p.d) / Math.sin(p.s);
   p.d > 90 && p.d < 270 ? p.y += p.s * Math.sin(a) / Math.sin(p.s) : p.y -= p.s * Math.sin(a) / Math.sin(p.s);
   return p;
 };
 
-// Just the function that physically draws the particles
-// Physically? sure why not, physically.
+/*
+ * Just the function that physically draws the particles
+ * Physically? sure why not, physically.
+ */
 const drawParticle = function(x, y, r, c) {
 
   ctx.beginPath();

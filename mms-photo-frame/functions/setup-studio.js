@@ -19,8 +19,10 @@ exports.handler = async function (context, event, callback) {
     return callback('Not authorized.');
   }
 
-  // Like a cache, return early if the 
-  // env has already been set.
+  /*
+   * Like a cache, return early if the 
+   * env has already been set.
+   */
   if (context.FLOW_SID && context.FLOW_URL) {
     return callback(null, {
       flowSid: context.FLOW_SID,
@@ -35,7 +37,7 @@ exports.handler = async function (context, event, callback) {
 
   // Substitue the correct URL into the studio flow JSON
   function strReplaceFlowData() {
-    let customUrl = "https://" + context.DOMAIN_NAME + '/post-to-frame';
+    const customUrl = `https://${  context.DOMAIN_NAME  }/post-to-frame`;
     updatedFlowDefinition = flowDefinition.replace('{{__replace--function_url}}', customUrl);
     console.log('strReplaceFlowData(): Flow definition replaced.'); 
   }
@@ -54,7 +56,7 @@ exports.handler = async function (context, event, callback) {
 
   strReplaceFlowData(); // Customize the studio flow
   const flow = await deployStudio(); // Deploy it
-  console.log('Studio delployed: ' + flow.sid); 
+  console.log(`Studio delployed: ${ flow.sid }`); 
 
   const environment = await getCurrentEnvironment(context);
   await createEnvironmentVariable(context, environment, 'FLOW_SID', flow.sid);

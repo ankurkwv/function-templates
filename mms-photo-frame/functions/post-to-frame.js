@@ -25,7 +25,7 @@ exports.handler = function(context, event, callback) {
 
   const twilioClient = context.getTwilioClient();
 
-  let request = twilioClient.sync.services(context.SYNC_SERVICE_SID)
+  const request = twilioClient.sync.services(context.SYNC_SERVICE_SID)
     .syncLists(context.SYNC_LIST_NAME) // List name is defined automatically at setup as an env variable
     .syncListItems
     .create({

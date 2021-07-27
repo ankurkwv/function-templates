@@ -20,8 +20,10 @@ exports.handler = async function (context, event, callback) {
     return callback('Not authorized.');
   }
   
-  // Like a cache, return early if the 
-  // env has already been set.
+  /*
+   * Like a cache, return early if the 
+   * env has already been set.
+   */
   if (context.UPDATED_PHONE_SID) {
     return callback(null, {
       phoneNumberSid: context.UPDATED_PHONE_SID,
@@ -29,7 +31,7 @@ exports.handler = async function (context, event, callback) {
     });
   }
 
-  const webhookUrl = event.webhookUrl; // URL to set passed into this function
+  const {webhookUrl} = event; // URL to set passed into this function
   const client = context.getTwilioClient();
 
   // Returns SID of our phone number
@@ -45,8 +47,10 @@ exports.handler = async function (context, event, callback) {
     });
   }
 
-  // Updates our phone number's webhook. 
-  // Needs the webhook url and sid to update.
+  /*
+   * Updates our phone number's webhook. 
+   * Needs the webhook url and sid to update.
+   */
   function updatePhoneNumberWebhook(webhook, numberSid) {
     return new Promise((resolve, reject) => {
       client.incomingPhoneNumbers(numberSid)
@@ -63,14 +67,14 @@ exports.handler = async function (context, event, callback) {
   // Here is where we call the above functions.
   const phoneNumberSid = await getPhoneNumberSid();
   await updatePhoneNumberWebhook(webhookUrl, phoneNumberSid);
-  console.log('Phone number sid updated: ' + phoneNumberSid);
+  console.log(`Phone number sid updated: ${ phoneNumberSid }`);
 
   const environment = await getCurrentEnvironment(context);
   await createEnvironmentVariable(context, environment, 'UPDATED_PHONE_SID', phoneNumberSid);
   console.log('Variables created/updated');
 
   return callback(null, {
-    phoneNumberSid: phoneNumberSid,
+    phoneNumberSid,
     phoneNumber: context.TWILIO_PHONE_NUMBER,
   });
 };
