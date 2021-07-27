@@ -13,7 +13,7 @@ $(function() {
   const passcodeInput = $('#passcode'); // Text input
   const passcodeButton = $('#passcode_submit'); // Button
 
-  let listName; // Returned in setup
+  let syncListName; // Returned in setup
   let syncList; // Returned in setup
   let currentIndex; // Returned in setup
 
@@ -116,7 +116,7 @@ $(function() {
     return $.getJSON("./sync-token", { passcode })
       .then(function (data) {
         log("Got a token.");
-        listName = data.listName;
+        syncListName = data.listName;
         return data.token;
       })
       .catch(function(err) {
@@ -124,6 +124,39 @@ $(function() {
         log("Could not get a token from server!");
         throw new Error(err.details);
       });
+  }
+
+  /**
+   *
+   * This function takes data from our Sync List
+   * and adds it to the page as HTML objects. 
+   *
+   */
+  
+  function insertItemToPage(data) {
+
+    const currentImage = $('.image'); // Grab a copy of the current image
+
+    $(`<img class="image" src="${ data.imgPath }">`).on('load', function() {
+
+      // eslint-disable-next-line no-use-before-define
+      cleanUpArray(); // Clear any previous animation
+      // eslint-disable-next-line no-use-before-define
+      initParticles(config.particleNumber, config.x, config.y); // Show the animation
+
+      currentImage.remove(); // Remove the current image
+      caption.empty(); // Remove the current caption
+
+      $(this).prependTo(innerFrame); // Add the newly loaded image
+
+      if (data.caption === "" || data.caption === null || !data.caption) { // Update and show the caption if they specified one
+        caption.hide();
+      }
+      else {
+        caption.html(data.caption);
+        caption.show();
+      }
+    });
   }
 
   /**
@@ -154,7 +187,7 @@ $(function() {
      * Sync List that contains our new posts to show!
      */
 
-    syncClient.list(listName).then(function(list) {
+    syncClient.list(syncListName).then(function(list) {
       window.syncList = list;
       list.on('itemAdded', function(result) {
         currentIndex = result.item.index;
@@ -165,35 +198,8 @@ $(function() {
     overallStatus.html('Live');
   }
 
-  /**
-   *
-   * This function takes data from our Sync List
-   * and adds it to the page as HTML objects. 
-   *
-   */
-  
-  function insertItemToPage(data) {
-
-    const currentImage = $('.image'); // Grab a copy of the current image
-
-    $(`<img class="image" src="${ data.imgPath }">`).on('load', function() {
-
-      cleanUpArray(); // Clear any previous animation
-      initParticles(config.particleNumber, config.x, config.y); // Show the animation
-
-      currentImage.remove(); // Remove the current image
-      caption.empty(); // Remove the current caption
-
-      $(this).prependTo(innerFrame); // Add the newly loaded image
-
-      if (data.caption != "") { // Update and show the caption if they specified one
-        caption.html(data.caption);
-        caption.show();
-      }
-      else { // Else, hide the caption object
-        caption.hide();
-      }
-    });
+  function openPhotoFrame() { // Tied to the button to open the frame
+    photoFrame.fadeIn('fast');
   }
 
   /**
@@ -212,13 +218,9 @@ $(function() {
     });
   }
 
-
-  function openPhotoFrame() { // Tied to the button to open the frame
-    photoFrame.fadeIn('fast');
-  }
-
   function displayInitError(error) {
     console.log(`Error: ${error}`);
+    // eslint-disable-next-line no-alert
     alert("We're sorry, there was an issue with the installation. Please file a github issue on https://github.com/twilio-labs/function-templates and mention mms-photo-frame. Thank you!");
   }
 
@@ -316,6 +318,27 @@ const drawBg = function(ctx, color) {
   ctx.fillRect(0, 0, canvas.width, canvas.height);
 };
 
+/*
+ * Provides some nice color variation
+ * Accepts an rgba object
+ * returns a modified rgba object or a rgba string if true is passed in for argument 2
+ */
+const colorVariation = function(color, returnString) {
+  const r = Math.round(((Math.random() * config.colorVariation) - (config.colorVariation / 2)) + color.r);
+  const g = Math.round(((Math.random() * config.colorVariation) - (config.colorVariation / 2)) + color.g);
+  const b = Math.round(((Math.random() * config.colorVariation) - (config.colorVariation / 2)) + color.b);
+  const a = Math.random() + .5;
+  if (returnString) {
+    return `rgba(${  r  },${  g  },${  b  },${  a  })`;
+  } 
+    return {
+      r,
+      g,
+      b,
+      a
+    };
+};
+
 // Particle Constructor
 const Particle = function(x, y) {
   // X Coordinate
@@ -332,33 +355,12 @@ const Particle = function(x, y) {
   this.d = Math.round(Math.random() * 360);
 };
 
-/*
- * Provides some nice color variation
- * Accepts an rgba object
- * returns a modified rgba object or a rgba string if true is passed in for argument 2
- */
-const colorVariation = function(color, returnString) {
-  let r; let g; let b; let a; let variation;
-  r = Math.round(((Math.random() * config.colorVariation) - (config.colorVariation / 2)) + color.r);
-  g = Math.round(((Math.random() * config.colorVariation) - (config.colorVariation / 2)) + color.g);
-  b = Math.round(((Math.random() * config.colorVariation) - (config.colorVariation / 2)) + color.b);
-  a = Math.random() + .5;
-  if (returnString) {
-    return `rgba(${  r  },${  g  },${  b  },${  a  })`;
-  } 
-    return {
-      r,
-      g,
-      b,
-      a
-    };
-  
-};
-
 // Used to find the rocks next point in space, accounting for speed and direction
 const updateParticleModel = function(p) {
   const a = 180 - (p.d + 90); // find the 3rd angle
+  // eslint-disable-next-line no-unused-expressions
   p.d > 0 && p.d < 180 ? p.x += p.s * Math.sin(p.d) / Math.sin(p.s) : p.x -= p.s * Math.sin(p.d) / Math.sin(p.s);
+  // eslint-disable-next-line no-unused-expressions
   p.d > 90 && p.d < 270 ? p.y += p.s * Math.sin(a) / Math.sin(p.s) : p.y -= p.s * Math.sin(a) / Math.sin(p.s);
   return p;
 };
@@ -377,14 +379,14 @@ const drawParticle = function(x, y, r, c) {
 };
 
 // Remove particles that aren't on the canvas
-const cleanUpArray = function() {
+function cleanUpArray() {
   particles = particles.filter((p) => {
     return (p.x > -100 && p.y > -100);
   });
 };
 
 
-const initParticles = function(numParticles, x, y) {
+function initParticles(numParticles, x, y) {
   for (let i = 0; i < numParticles; i++) {
     particles.push(new Particle(x, y));
   }
@@ -393,7 +395,7 @@ const initParticles = function(numParticles, x, y) {
   });
 };
 
-const frame = function() {
+function frame() {
   // Draw background first
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   drawBg(ctx, colorPalette.bg);

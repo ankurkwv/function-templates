@@ -13,6 +13,7 @@
 
 exports.handler = async function (context, event, callback) {
 
+  // eslint-disable-next-line dot-notation
   const helpersPath = Runtime.getFunctions()['helpers'].path;
   const { checkPasscode, getCurrentEnvironment, createEnvironmentVariable } = require(helpersPath);
 

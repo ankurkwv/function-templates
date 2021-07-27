@@ -12,6 +12,7 @@
 
 exports.handler = async function (context, event, callback) {
 
+  // eslint-disable-next-line dot-notation
   const helpersPath = Runtime.getFunctions()['helpers'].path;
   const { checkPasscode, getCurrentEnvironment, createEnvironmentVariable } = require(helpersPath);
 
@@ -51,7 +52,10 @@ exports.handler = async function (context, event, callback) {
           definition: updatedFlowDefinition,
         })
         .then((flow) => flow)
-        .catch((err) => { console.log(err.details); throw new Error(err.details) });
+        .catch((err) => { 
+          console.log(err.details); 
+          throw new Error(err.details) 
+        });
   }
 
   strReplaceFlowData(); // Customize the studio flow

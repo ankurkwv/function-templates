@@ -1,4 +1,4 @@
-/* eslint-disable no-console, func-names */
+/* eslint-disable no-console, func-names, consistent-return */
 
 /* thanks to the vaccine-standby team for the boilerplate for this function : https://github.com/twilio-labs/function-templates/blob/main/vaccine-standby/functions/auth.private.js */
 
@@ -15,7 +15,6 @@ function checkPasscode(passwordProvided, passwordExpected) {
 async function getCurrentEnvironment(context) {
 
   if (context.DOMAIN_NAME && context.DOMAIN_NAME.startsWith("localhost")) {
-
     return;
   }
 
@@ -34,6 +33,11 @@ async function getCurrentEnvironment(context) {
       return environment;
     }
   }
+}
+
+function updateLocalVariable(key, value) {
+  process.env[key] = value;
+  return true;
 }
 
 async function createEnvironmentVariable(context, hostedEnvironment, key, value) {
@@ -58,11 +62,6 @@ async function createEnvironmentVariable(context, hostedEnvironment, key, value)
     console.error(`Creating env variables error: '${key}': '${value}': ${err}`);
     return false;
   }
-  return true;
-}
-
-function updateLocalVariable(key, value) {
-  process.env[key] = value;
   return true;
 }
 

@@ -15,6 +15,7 @@
 
 exports.handler = async function (context, event, callback) {
 
+  // eslint-disable-next-line dot-notation
   const helpersPath = Runtime.getFunctions()['helpers'].path;
   const { checkPasscode, getCurrentEnvironment, createEnvironmentVariable } = require(helpersPath);
 
@@ -37,7 +38,7 @@ exports.handler = async function (context, event, callback) {
   // Creating a Twilio API Key
   function createApiKey() {
     return client.newKeys.create()
-        .then(new_key => new_key)
+        .then(newKey => newKey)
         .catch((err) => { throw new Error(err.details) });
   }
 
@@ -55,7 +56,7 @@ exports.handler = async function (context, event, callback) {
         .create({
           uniqueName: context.SYNC_LIST_NAME
         })
-        .then(sync_list => sync_list)
+        .then(syncList => syncList)
         .catch((err) => { throw new Error(err.details) });
   }
 

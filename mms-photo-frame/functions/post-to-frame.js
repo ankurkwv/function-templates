@@ -1,4 +1,4 @@
-/* eslint-disable no-console, func-names */
+/* eslint-disable no-console, func-names, consistent-return */
 
 /**
  *
@@ -11,6 +11,7 @@
  */
 exports.handler = function(context, event, callback) {
 
+  // eslint-disable-next-line dot-notation
   const helpersPath = Runtime.getFunctions()['helpers'].path;
   const { checkPasscode } = require(helpersPath);
 
@@ -37,5 +38,6 @@ exports.handler = function(context, event, callback) {
 
   request.then(function(result) {
     return callback(null, 'Posted');
-  });
+  }).catch(() => { return callback('Error') });
+
 };

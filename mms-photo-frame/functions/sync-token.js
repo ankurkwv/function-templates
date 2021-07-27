@@ -12,6 +12,7 @@
 
  exports.handler = function(context, event, callback) {  
 
+  // eslint-disable-next-line dot-notation
   const helpersPath = Runtime.getFunctions()['helpers'].path;
   const { checkPasscode } = require(helpersPath);
 
@@ -19,7 +20,7 @@
     return callback('Not authorized.');
   }
 
-  const ACCOUNT_SID = context.ACCOUNT_SID;
+  const TWILIO_ACCOUNT_SID = context.ACCOUNT_SID;
   const SERVICE_SID = context.SYNC_SERVICE_SID;
   const API_KEY = context.TWILIO_API_KEY;
   const API_SECRET = context.TWILIO_API_SECRET;
@@ -41,7 +42,7 @@
   });
 
   const accessToken = new AccessToken(
-    ACCOUNT_SID,
+    TWILIO_ACCOUNT_SID,
     API_KEY,
     API_SECRET
   );
