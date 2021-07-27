@@ -13,6 +13,13 @@
 
 exports.handler = async function (context, event, callback) {
 
+  const helpersPath = Runtime.getFunctions()['helpers'].path;
+  const { checkPasscode, getCurrentEnvironment, createEnvironmentVariable } = require(helpersPath);
+
+  if (!checkPasscode(event.passcode, context.ADMIN_PASSCODE)) {
+    return callback('Not authorized.');
+  }
+  
   // Like a cache, return early if the 
   // env has already been set.
   if (context.UPDATED_PHONE_SID) {
@@ -22,8 +29,6 @@ exports.handler = async function (context, event, callback) {
     });
   }
 
-  const helpersPath = Runtime.getFunctions()['helpers'].path;
-  const { getCurrentEnvironment, createEnvironmentVariable } = require(helpersPath);
   const webhookUrl = event.webhookUrl; // URL to set passed into this function
   const client = context.getTwilioClient();
 
@@ -60,13 +65,9 @@ exports.handler = async function (context, event, callback) {
   await updatePhoneNumberWebhook(webhookUrl, phoneNumberSid);
   console.log('Phone number sid updated: ' + phoneNumberSid);
 
-  // Making sure we only try and update the env if this file
-  // is being run inside a Twilio Function service, not locally
-  if (context.DOMAIN_NAME && !context.DOMAIN_NAME.startsWith("localhost")) {  
-    const environment = await getCurrentEnvironment(context);
-    await createEnvironmentVariable(context, environment, 'UPDATED_PHONE_SID', phoneNumberSid);
-    console.log('Hosted environment variables created');
-  }
+  const environment = await getCurrentEnvironment(context);
+  await createEnvironmentVariable(context, environment, 'UPDATED_PHONE_SID', phoneNumberSid);
+  console.log('Variables created/updated');
 
   return callback(null, {
     phoneNumberSid: phoneNumberSid,

@@ -11,6 +11,14 @@
  */
 
  exports.handler = function(context, event, callback) {  
+
+  const helpersPath = Runtime.getFunctions()['helpers'].path;
+  const { checkPasscode } = require(helpersPath);
+
+  if (!checkPasscode(event.passcode, context.ADMIN_PASSCODE)) {
+    return callback('Not authorized.');
+  }
+
   const ACCOUNT_SID = context.ACCOUNT_SID;
   const SERVICE_SID = context.SYNC_SERVICE_SID;
   const API_KEY = context.TWILIO_API_KEY;

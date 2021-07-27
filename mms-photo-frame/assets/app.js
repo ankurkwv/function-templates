@@ -1,43 +1,42 @@
 $(function() {
 
-  let overallStatus = $('#deployment_status'); //Initializing vs Live
-  let studioStatus = $('#studio_status'); // Status indicator for studio setup
-  let phoneNumberStatus = $('#phone_number_status'); // Status indicator for PN setup
-  let syncStatus = $('#sync_status'); // Status indicator for Sync setup
-  let launchButton = $('#launch'); // Button used to open photo frame
-  let photoFrame = $('#frame'); // Photo frame container
-  let innerFrame = $('#inner_frame'); // // Where the photos actually go
-  let closeFrameButton = $('#close_frame'); // Button to close frame
-  let caption = $('#caption'); // Caption div display container
-  let number = $('#number'); // Twilio phone number display container
-  let listName, syncList, currentIndex; // Misc sync list variables
+  const overallStatus = $('#deployment_status'); // Initializing vs Live
+  const studioStatus = $('#studio_status'); // Status indicator for studio setup
+  const phoneNumberStatus = $('#phone_number_status'); // Status indicator for PN setup
+  const syncStatus = $('#sync_status'); // Status indicator for Sync setup
+  const launchButton = $('#launch'); // Button used to open photo frame
+  const photoFrame = $('#frame'); // Photo frame container
+  const innerFrame = $('#inner_frame'); // // Where the photos actually go
+  const closeFrameButton = $('#close_frame'); // Button to close frame
+  const caption = $('#caption'); // Caption div display container
+  const number = $('#number'); // Twilio phone number display container
+  const passcodeInput = $('#passcode'); // Text input
+  const passcodeButton = $('#passcode_submit'); // Button
 
-  runSetup();
+  let listName; // Returned in setup
+  let syncList; // Returned in setup
+  let currentIndex; // Returned in setup
 
-  function runSetup() {
-    photoFrame.hide(); // On load, hide the frame
+  photoFrame.hide(); // On load, hide the frame
 
-    frame(); // Begin the 2d context for animations later
-
-    // Run all of our Twilio resource setup functions
-    touchStudioFlow()
-      .then((webhookUrl) => touchPhoneNumber(webhookUrl))
-      .then(() => touchSyncService())
-      .then(() => getSyncCreds())
-      .then((token) => startSync(token))
-      .then(() => addLaunchButton())
-      .catch(error => displayInitError(error));
+  function log(message) {
+    // In the future, maybe display this too.
+    console.log(message);
   }
 
-  // Calling a relative URL which is to a Twilio Function
-  // that will create a Studio flow for this user.
-  // The Function returns a SID and webhook URL.
-
-  function touchStudioFlow() {
-    return $.getJSON("./setup-studio")
+  /**
+   *
+   * Calling a relative URL which is to a Twilio Function
+   * that will create a Studio flow for this user.
+   * The Function returns a SID and webhook URL.
+   *
+   */
+  
+  function touchStudioFlow(passcode) {
+    return $.getJSON("./setup-studio", { passcode: passcode })
       .then(function (data) {
         log("Ran studio setup function...");
-        let url = "https://www.twilio.com/console/studio/flows/" + data.flowSid;
+        const url = "https://www.twilio.com/console/studio/flows/" + data.flowSid;
         studioStatus.html('provisioned! <a href="' + url + '">[Edit Flow]</a>');
         studioStatus.addClass('provisioned');
         return data.webhookUrl;
@@ -49,13 +48,18 @@ $(function() {
       });
   }
 
-  // Calling a relative URL which is to a Twilio Function
-  // that will modify a number to point to the Studio flow.
-  // The Function returns a phone number SID.
+  /**
+   *
+   * Calling a relative URL which is to a Twilio Function
+   * that will modify a number to point to the Studio flow.
+   * The Function returns a phone number SID.
+   *
+   */
 
-  function touchPhoneNumber(webhookUrl) {
+  function touchPhoneNumber(webhookUrl, passcode) {
     return $.getJSON("./setup-number", {
-        webhookUrl: webhookUrl
+        webhookUrl: webhookUrl,
+        passcode: passcode
       })
       .then(function (data) {
         log("Ran phone number setup function...");
@@ -72,12 +76,16 @@ $(function() {
       });
   }
 
-  // Calling a relative URL which is to a Twilio Function
-  // that will create a Sync Service to be used in this app.
-  // The Function returns a sync service SID.
+  /**
+   *
+   * Calling a relative URL which is to a Twilio Function
+   * that will create a Sync Service to be used in this app.
+   * The Function returns a sync service SID.
+   *
+   */
 
-  function touchSyncService() {
-    return $.getJSON("./setup-sync")
+  function touchSyncService(passcode) {
+    return $.getJSON("./setup-sync", { passcode: passcode })
       .then(function (data) {
         log("Ran sync setup function...");
         let url = "https://www.twilio.com/console/sync/services/" + data.syncServiceSid;
@@ -92,16 +100,20 @@ $(function() {
       });
   }
 
-  // Our Twilio Function has already created a Sync List that
-  // will store incoming posts. This will connect our website
-  // to that list via the Sync SDK to listen for udpates.
-
-  // getSyncCreds calls a Twilio Function that will return
-  // a Sync token for our local Sync SDK to use to connect.
-
-  function getSyncCreds() {
+  /**
+   *
+   * Our Twilio Function has already created a Sync List that
+   * will store incoming posts. This will connect our website
+   * to that list via the Sync SDK to listen for udpates.
+   *
+   * getSyncCreds() calls a Twilio Function that will return
+   * a Sync token for our local Sync SDK to use to connect.
+   *
+   */
+  
+  function getSyncCreds(passcode) {
     log("Requesting Access Token...");
-    return $.getJSON("./sync-token")
+    return $.getJSON("./sync-token", { passcode: passcode })
       .then(function (data) {
         log("Got a token.");
         listName = data.listName;
@@ -114,8 +126,12 @@ $(function() {
       });
   }
 
-  // startSync is called in our setup function above
-  // to actually begin the Sync SDK's listening.
+  /**
+   *
+   * startSync is called in our setup function above
+   * to actually begin the Sync SDK's listening.
+   *
+   */
 
   function startSync(token) {
     log("Starting sync...");
@@ -145,8 +161,13 @@ $(function() {
     overallStatus.html('Live');
   }
 
-  // This function takes data from our Sync List
-  // and adds it to the page as HTML objects. 
+  /**
+   *
+   * This function takes data from our Sync List
+   * and adds it to the page as HTML objects. 
+   *
+   */
+  
   function insertItemToPage(data) {
 
     let currentImage = $('.image'); // Grab a copy of the current image
@@ -171,8 +192,12 @@ $(function() {
     });
   }
 
-  // addLaunchButton called above in runSetup() 
-  // once all steps are complete
+  /**
+   *
+   * addLaunchButton called above in runSetup() 
+   * once all steps are complete
+   *
+   */
 
   function addLaunchButton() {
     launchButton.attr('disabled', false);
@@ -193,9 +218,29 @@ $(function() {
     alert("We're sorry, there was an issue with the installation. Please file a github issue on https://github.com/twilio-labs/function-templates and mention mms-photo-frame. Thank you!");
   }
 
-  function log(message) {
-    console.log(message);
+  function runSetup(passcode) {
+    // Run all of our Twilio resource setup functions
+    touchStudioFlow(passcode)
+      .then((webhookUrl) => touchPhoneNumber(webhookUrl, passcode))
+      .then(() => touchSyncService(passcode))
+      .then(() => getSyncCreds(passcode))
+      .then((token) => startSync(token))
+      .then(() => addLaunchButton())
+      .catch(error => displayInitError(error));
   }
+
+  function enableAskPassword() {
+    passcodeButton.on('click', function() {
+      $('.locked').hide();
+      $('.unlocked').show();
+      runSetup(passcodeInput.val());
+    })
+  }
+
+  // eslint-disable-next-line no-use-before-define
+  frame(); // Begin the 2d context for animations later
+  enableAskPassword(); // Make the password work
+
 });
 
 /**

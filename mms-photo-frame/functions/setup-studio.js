@@ -12,6 +12,13 @@
 
 exports.handler = async function (context, event, callback) {
 
+  const helpersPath = Runtime.getFunctions()['helpers'].path;
+  const { checkPasscode, getCurrentEnvironment, createEnvironmentVariable } = require(helpersPath);
+
+  if (!checkPasscode(event.passcode, context.ADMIN_PASSCODE)) {
+    return callback('Not authorized.');
+  }
+
   // Like a cache, return early if the 
   // env has already been set.
   if (context.FLOW_SID && context.FLOW_URL) {
@@ -20,18 +27,17 @@ exports.handler = async function (context, event, callback) {
       webhookUrl: context.FLOW_URL
     });
   }
-
-  const helpersPath = Runtime.getFunctions()['helpers'].path;
-  const { getCurrentEnvironment, createEnvironmentVariable } = require(helpersPath);
+  
   const assets = Runtime.getAssets();
   const flowDefinition = require('fs').readFileSync(assets["/studio_flow.json"].path, 'utf8');
   const client = context.getTwilioClient();
+  let updatedFlowDefinition;
 
   // Substitue the correct URL into the studio flow JSON
   function strReplaceFlowData() {
     let customUrl = "https://" + context.DOMAIN_NAME + '/post-to-frame';
-    let updatedFlowDefinition = flowDefinition.replace('{{__replace--function_url}}', customUrl);
-    console.log('Definition replaced.'); 
+    updatedFlowDefinition = flowDefinition.replace('{{__replace--function_url}}', customUrl);
+    console.log('strReplaceFlowData(): Flow definition replaced.'); 
   }
 
   // Deploy Twilio Studio Flow
@@ -50,14 +56,10 @@ exports.handler = async function (context, event, callback) {
   const flow = await deployStudio(); // Deploy it
   console.log('Studio delployed: ' + flow.sid); 
 
-  // Making sure we only try and update the env if this file
-  // is being run inside a Twilio Function service, not locally
-  if (context.DOMAIN_NAME && !context.DOMAIN_NAME.startsWith("localhost")) {
-    const environment = await getCurrentEnvironment(context);
-    await createEnvironmentVariable(context, environment, 'FLOW_SID', flow.sid);
-    await createEnvironmentVariable(context, environment, 'FLOW_URL', flow.webhookUrl);
-    console.log('Hosted environment variables created');
-  }
+  const environment = await getCurrentEnvironment(context);
+  await createEnvironmentVariable(context, environment, 'FLOW_SID', flow.sid);
+  await createEnvironmentVariable(context, environment, 'FLOW_URL', flow.webhookUrl);
+  console.log('Variables created/updated');
 
   return callback(null, {
     accountSid: context.ACCOUNT_SID,

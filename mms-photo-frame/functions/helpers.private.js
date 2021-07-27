@@ -2,6 +2,16 @@
 
 /* thanks to the vaccine-standby team for the boilerplate for this function : https://github.com/twilio-labs/function-templates/blob/main/vaccine-standby/functions/auth.private.js */
 
+function checkPasscode(passwordProvided, passwordExpected) {
+  if (!passwordProvided) {
+    return false;
+  }
+  if (passwordProvided === passwordExpected) {
+    return true;
+  }
+  return false;
+}
+
 async function getCurrentEnvironment(context) {
 
   if (context.DOMAIN_NAME && context.DOMAIN_NAME.startsWith("localhost")) {
@@ -26,29 +36,19 @@ async function getCurrentEnvironment(context) {
   }
 }
 
-async function getEnvironmentVariables(context, environment) {
-  const client = context.getTwilioClient();
-  return await client.serverless
-    .services(environment.serviceSid)
-    .environments(environment.sid)
-    .variables.list();
-}
+async function createEnvironmentVariable(context, hostedEnvironment, key, value) {
 
-async function getEnvironmentVariable(context, environment, key) {
-  const client = context.getTwilioClient();
-  // The list filter method isn't implemented yet.
-  const envVars = await getEnvironmentVariables(context, environment);
-  return envVars.find(variable => variable.key === key);
-}
+  if (!hostedEnvironment) { 
+    return updateLocalVariable(key, value)
+  }
 
-async function createEnvironmentVariable(context, environment, key, value) {
   const client = context.getTwilioClient();
+
   try {
-    if (!environment) {throw new Error('No Env!')}
     console.log(`Creating variable ${key}`);
     await client.serverless
-      .services(environment.serviceSid)
-      .environments(environment.sid)
+      .services(hostedEnvironment.serviceSid)
+      .environments(hostedEnvironment.sid)
       .variables.create({
         key: key,
         value: value
@@ -61,9 +61,13 @@ async function createEnvironmentVariable(context, environment, key, value) {
   return true;
 }
 
+function updateLocalVariable(key, value) {
+  process.env[key] = value;
+  return true;
+}
+
 module.exports = {
     getCurrentEnvironment,
-    getEnvironmentVariables,
-    getEnvironmentVariable,
-    createEnvironmentVariable
+    createEnvironmentVariable,
+    checkPasscode
 }

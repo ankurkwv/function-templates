@@ -15,6 +15,13 @@
 
 exports.handler = async function (context, event, callback) {
 
+  const helpersPath = Runtime.getFunctions()['helpers'].path;
+  const { checkPasscode, getCurrentEnvironment, createEnvironmentVariable } = require(helpersPath);
+
+  if (!checkPasscode(event.passcode, context.ADMIN_PASSCODE)) {
+    return callback('Not authorized.');
+  }
+
   // Like a cache, return early if the 
   // env has already been set.
   if (context.SYNC_SERVICE_SID && context.TWILIO_API_KEY && context.TWILIO_API_SECRET) {
@@ -23,8 +30,6 @@ exports.handler = async function (context, event, callback) {
     });
   }
 
-  const helpersPath = Runtime.getFunctions()['helpers'].path;
-  const { getCurrentEnvironment, createEnvironmentVariable } = require(helpersPath);
   const client = context.getTwilioClient();
 
   // Creating a Twilio API Key
@@ -59,15 +64,11 @@ exports.handler = async function (context, event, callback) {
   const syncList = await createSyncList(syncService.sid);
   console.log('Sync List created: ' + syncList.sid);
 
-  // Making sure we only try and update the env if this file
-  // is being run inside a Twilio Function service, not locally
-  if (context.DOMAIN_NAME && !context.DOMAIN_NAME.startsWith("localhost")) {
-    const environment = await getCurrentEnvironment(context);
-    await createEnvironmentVariable(context, environment, 'SYNC_SERVICE_SID', syncService.sid);
-    await createEnvironmentVariable(context, environment, 'TWILIO_API_KEY', key.sid);
-    await createEnvironmentVariable(context, environment, 'TWILIO_API_SECRET', key.secret);
-    console.log('Hosted environment variables created');
-  }
+  const environment = await getCurrentEnvironment(context);
+  await createEnvironmentVariable(context, environment, 'SYNC_SERVICE_SID', syncService.sid);
+  await createEnvironmentVariable(context, environment, 'TWILIO_API_KEY', key.sid);
+  await createEnvironmentVariable(context, environment, 'TWILIO_API_SECRET', key.secret);
+  console.log('Variables created/updated');
 
   return callback(null, {
     syncServiceSid: syncService.sid

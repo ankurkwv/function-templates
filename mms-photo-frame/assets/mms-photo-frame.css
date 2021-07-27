@@ -54,6 +54,7 @@ button {
     -moz-appearance: none;
     border-radius: 4px;
     font-weight: bold;
+    box-shadow: 0px 0px 50px rgba(2,99,224,.3);
 }
 
 button[disabled] {
@@ -66,7 +67,10 @@ button[disabled] {
 
 button.launch {
     margin: 50px auto 20px;
-    box-shadow: 0px 0px 50px rgba(2,99,224,.3);
+}
+
+button.passcode {
+	margin: 50px auto 20px;
 }
 
 button:hover,
@@ -107,6 +111,14 @@ footer #twilio-logo {
 
 footer .statement {
 	font-size: 20px;
+}
+
+.locked {
+	display: block;
+}
+
+.unlocked {
+	display: none;
 }
 
 .overlay {

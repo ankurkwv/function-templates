@@ -65,18 +65,25 @@
                 </div>
                 <section>
                     <h2>Get started with your application</h2>
-                    <p>
-                        This Quick Deploy application has already taken care of many things for you. With the number you configured, this applet handles provisioning the following bits on your Twilio Account:
-                    </p>
-                    <ol class="steps">
-                        <li>Studio Flow to handle incoming photo requsts –> <span class="status" id="studio_status">
-                        deploying...</span></li>
-                        <li>Auto-provision phone number to use Studio Flow –> <span class="status" id="phone_number_status">
-                        deploying...</span></li>
-                        <li>Sync Service to push real-time updates to the photo frame -> <span class="status" id="sync_status">
-                        deploying...</span></li>
-                    </ol>
-                    <button id="launch" class="launch" disabled>Loading Photo Frame...</button>
+                    <div class="locked">
+                        <p>Please enter your passcode set during the deployment to finish setting up your photo frame.</p>
+                        <label for="passcode">Passcode: <input id="passcode" name="passcode" type="text"></label>
+                        <button id="passcode_submit" class="passcode">Submit</button>
+                    </div>
+                    <div class="unlocked">
+                        <p>
+                            This Quick Deploy application has already taken care of many things for you. With the number you configured, this applet handles provisioning the following bits on your Twilio Account:
+                        </p>
+                        <ol class="steps">
+                            <li>Studio Flow to handle incoming photo requsts –> <span class="status" id="studio_status">
+                            deploying...</span></li>
+                            <li>Auto-provision phone number to use Studio Flow –> <span class="status" id="phone_number_status">
+                            deploying...</span></li>
+                            <li>Sync Service to push real-time updates to the photo frame -> <span class="status" id="sync_status">
+                            deploying...</span></li>
+                        </ol>
+                        <button id="launch" class="launch" disabled>Loading Photo Frame...</button>
+                    </div>
                 </section>
                 <section>
                     <!-- APP_INFO_V2 -->
